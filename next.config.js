@@ -1,4 +1,6 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {};
+// ESM Syntax
+import { NextConfig } from 'next';
 
-module.exports = nextConfig;
+/** @type {NextConfig} */
+const nextConfig = {};
+export default nextConfig;
