@@ -1,4 +1,5 @@
 // import { sql } from '@vercel/postgres';
+import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from './supabase-client';
 import { formatCurrency } from './utils';
 
@@ -17,13 +18,17 @@ interface Invoice {
 
 
 export async function fetchRevenue() {
+  noStore();
   try {
+    console.log('Fetching revenue data...');
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
     const { data, error } = await supabase
       .from('revenue')
       .select('*');
 
     if (error) throw error;
-
+    console.log('Data fetch completed after 3 seconds.');
     return data;
   } catch (error) {
     console.error('Database Error:', error);
@@ -32,6 +37,7 @@ export async function fetchRevenue() {
 }
 
 export async function fetchLatestInvoices() {
+  noStore();
   try {
     const { data, error } = await supabase
       .from('invoices')
@@ -67,6 +73,7 @@ export async function fetchLatestInvoices() {
 
 
 export async function fetchCardData() {
+  noStore();
   try {
     // This might require separate queries or a more complex query
     // depending on your database schema and requirements.
@@ -100,6 +107,7 @@ export async function fetchCardData() {
 const ITEMS_PER_PAGE = 6;
 
 export async function fetchFilteredInvoices(query: string, currentPage: number) {
+  noStore();
   const start = (currentPage - 1) * ITEMS_PER_PAGE;
   const end = start + ITEMS_PER_PAGE - 1;
 
@@ -128,6 +136,7 @@ export async function fetchFilteredInvoices(query: string, currentPage: number) 
 }
 
 export async function fetchInvoicesPages(query: string) {
+  noStore();
   try {
     const { count } = await supabase
       .from('invoices')
@@ -148,6 +157,7 @@ export async function fetchInvoicesPages(query: string) {
 }
 
 export async function fetchInvoiceById(id: string) {
+  noStore();
   try {
     const { data, error } = await supabase
       .from('invoices')
@@ -173,6 +183,7 @@ export async function fetchInvoiceById(id: string) {
 }
 
 export async function fetchCustomers() {
+  noStore();
   try {
     const { data, error } = await supabase
       .from('customers')
@@ -189,6 +200,7 @@ export async function fetchCustomers() {
 }
 
 export async function fetchFilteredCustomers(query: string) {
+  noStore();
   try {
     const { data, error } = await supabase
       .from('customers')
@@ -219,6 +231,7 @@ export async function fetchFilteredCustomers(query: string) {
 }
 
 export async function getUser(email: string) {
+  noStore();
   try {
     const { data, error } = await supabase
       .from('users')
