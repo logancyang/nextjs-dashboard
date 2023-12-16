@@ -3,16 +3,17 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from './supabase-client';
 import { formatCurrency } from './utils';
 
-interface Customer {
+export interface Customer {
   name: string;
   image_url: string;
   email: string;
 }
 
-interface Invoice {
+export interface Invoice {
   id: string;
   amount: number;
   date: string;
+  status: 'pending' | 'paid';
   customer: Customer;
 }
 
@@ -128,7 +129,18 @@ export async function fetchFilteredInvoices(query: string, currentPage: number) 
 
     if (error) throw error;
 
-    return data;
+    const typedData = data as unknown as Invoice[];
+    const filteredInvoices = typedData.map(invoice => ({
+      id: invoice.id,
+      amount: formatCurrency(invoice.amount),
+      date: invoice.date,
+      status: invoice.status,
+      name: invoice.customer.name,
+      image_url: invoice.customer.image_url,
+      email: invoice.customer.email
+    }));
+
+    return filteredInvoices;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch filtered invoices.');
