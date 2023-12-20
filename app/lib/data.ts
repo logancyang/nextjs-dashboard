@@ -14,7 +14,7 @@ export interface Invoice {
   amount: number;
   date: string;
   status: 'pending' | 'paid';
-  customer: Customer;
+  customers: Customer;
 }
 
 
@@ -60,9 +60,9 @@ export async function fetchLatestInvoices() {
       id: invoice.id,
       amount: formatCurrency(invoice.amount),
       date: invoice.date,
-      name: invoice.customer.name,
-      image_url: invoice.customer.image_url,
-      email: invoice.customer.email
+      name: invoice.customers.name,
+      image_url: invoice.customers.image_url,
+      email: invoice.customers.email
     }));
 
     return latestInvoices;
@@ -123,22 +123,24 @@ export async function fetchFilteredInvoices(query: string, currentPage: number) 
         customers:customer_id (name, email, image_url)
       `)
       .ilike('customers.name', `%${query}%`)
-      .or(`customers.email.ilike.%${query}%,amount.ilike.%${query}%,date.ilike.%${query}%,status.ilike.%${query}%`)
       .order('date', { ascending: false })
       .range(start, end);
 
     if (error) throw error;
 
     const typedData = data as unknown as Invoice[];
-    const filteredInvoices = typedData.map(invoice => ({
-      id: invoice.id,
-      amount: formatCurrency(invoice.amount),
-      date: invoice.date,
-      status: invoice.status,
-      name: invoice.customer.name,
-      image_url: invoice.customer.image_url,
-      email: invoice.customer.email
-    }));
+    const filteredInvoices = typedData.map(invoice => {
+      const customer = invoice.customers;
+      return {
+        id: invoice.id,
+        amount: formatCurrency(invoice.amount),
+        date: invoice.date,
+        status: invoice.status,
+        name: customer?.name,
+        image_url: customer?.image_url,
+        email: customer?.email
+      };
+  });
 
     return filteredInvoices;
   } catch (error) {
