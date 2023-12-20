@@ -55,15 +55,18 @@ export async function fetchLatestInvoices() {
 
     // Type assertion here
     const typedData = data as unknown as Invoice[];
-
-    const latestInvoices = typedData.map(invoice => ({
-      id: invoice.id,
-      amount: formatCurrency(invoice.amount),
-      date: invoice.date,
-      name: invoice.customers.name,
-      image_url: invoice.customers.image_url,
-      email: invoice.customers.email
-    }));
+    console.log('typedData:', typedData);
+    const latestInvoices = typedData.map(invoice => {
+      const customer = invoice.customer;
+      return {
+        id: invoice.id,
+        amount: formatCurrency(invoice.amount),
+        date: invoice.date,
+        name: customer.name,
+        image_url: customer.image_url,
+        email: customer.email
+      }
+    })
 
     return latestInvoices;
   } catch (error) {
@@ -158,11 +161,7 @@ export async function fetchInvoicesPages(query: string) {
       .ilike('customers.name', `%${query}%`)
       .or(`customers.email.ilike.%${query}%,amount.ilike.%${query}%,date.ilike.%${query}%,status.ilike.%${query}%`);
 
-    if (count === null || count === undefined) {
-      throw new Error('Unable to retrieve the count of invoices.');
-    }
-
-    const totalPages = Math.ceil(count / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(count || 0 / ITEMS_PER_PAGE);
     return totalPages;
   } catch (error) {
     console.error('Database Error:', error);
