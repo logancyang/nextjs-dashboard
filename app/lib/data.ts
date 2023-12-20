@@ -55,7 +55,6 @@ export async function fetchLatestInvoices() {
 
     // Type assertion here
     const typedData = data as unknown as Invoice[];
-    console.log('typedData:', typedData);
     const latestInvoices = typedData.map(invoice => {
       const customer = invoice.customer;
       return {
